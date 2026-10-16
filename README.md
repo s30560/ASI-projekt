@@ -16,15 +16,15 @@ powiązane, ale nie zawierają gotowych rozwiązań ani zadań do wykonania wcze
 
 | Pole | Wartość |
 |---|---|
-| Zespół i integrator Sprintu 1 | TODO |
-| Dataset (id z `docs/datasets.md`) | TODO |
-| Źródło, licencja i cytowanie (DOI) | TODO |
-| Data pobrania danych | TODO |
-| SHA-256 pliku danych (`fingerprint.json`) | TODO |
-| Dane osobowe w zbiorze i sposób postępowania | TODO |
-| Target i klasa pozytywna | TODO |
-| Metryka główna i uzasadnienie | TODO |
-| Użytkownik systemu i decyzja, którą wspiera model | TODO |
+| Zespół i integrator Sprintu 1 | Paweł Kopania, Damian Pisański i Tadeusz Kucza-Kuczyński. Integrator Sprintu 1: Paweł Kopania. |
+| Dataset (id z `docs/datasets.md`) | `online_shoppers` — Online Shoppers Purchasing Intention |
+| Źródło, licencja i cytowanie (DOI) | Dane pochodzą z [UCI Machine Learning Repository](https://archive.ics.uci.edu/dataset/468/online+shoppers+purchasing+intention+dataset). Zbiór jest dostępny na licencji CC BY 4.0. DOI: [10.24432/C5F88Q](https://doi.org/10.24432/C5F88Q). |
+| Data pobrania danych | 17.10.2026 (`2026-10-16T23:22:39+00:00` w `fingerprint.json`) |
+| SHA-256 pliku danych (`fingerprint.json`) | `b3055ee355f59134d851d32641183cb4a8b45def7124d2f50442a042f358e0d9` |
+| Dane osobowe w zbiorze i sposób postępowania | Zbiór nie zawiera imion, adresów e-mail ani innych danych pozwalających bezpośrednio rozpoznać użytkownika. Każdy rekord opisuje jedynie zachowanie podczas pojedynczej sesji w sklepie internetowym. Nie podejmujemy prób identyfikowania użytkowników, a podczas prezentacji wykorzystamy wyłącznie przykładowe dane. |
+| Target i klasa pozytywna | Przewidujemy wartość kolumny `Revenue`, czyli to, czy sesja zakończyła się zakupem. Klasą pozytywną jest `true` — sesja zakończona zakupem. W modelu ta klasa jest oznaczona jako `1`. |
+| Metryka główna i uzasadnienie | Główną metryką będzie F1 dla sesji zakończonych zakupem. Tylko około 15,5% sesji kończy się zakupem, dlatego samo accuracy mogłoby dawać myląco dobry wynik. F1 bierze pod uwagę zarówno pominięte zakupy, jak i błędne przewidywania zakupu. |
+| Użytkownik systemu i decyzja, którą wspiera model | Z modelu będzie korzystać zespół e-commerce lub analitycy sklepu internetowego. Model pomoże ocenić, czy klient podczas bieżącej sesji prawdopodobnie dokona zakupu i czy warto zastosować dodatkowe wsparcie lub personalizację. |
 <!-- KARTA-PROJEKTU:END -->
 
 ## Mapa projektu
