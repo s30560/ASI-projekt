@@ -48,10 +48,22 @@ gotowy — sprawdza to `python scripts/check_dod.py`.
 <!-- DIAGRAM-V0:START -->
 ```mermaid
 flowchart LR
-    data["TODO: źródło danych"] --> model["TODO: kolejne elementy systemu"]
+    data["Źródło danych (UCI) + Kontrakt (datasets.yaml)"] --> clean["Czyszczenie danych (Input norm., Train filter)"]
+    clean --> pipe["Pipeline Kedro (Model preprocessing i trening)"]
+    pipe --> model["Artefakt modelu"]
+
+    user["UI (Analityk sklepu)"] -->|Żądanie predykcji| api["API (Usługa)"]
+    model -.->|Wczytanie na starcie| api
+    api -->|Decyzja o zakupie| user
+    api --> state["Baza danych (Zapis stanu)"]
+
+    classDef done fill:#d4edda,stroke:#28a745
+    classDef planned fill:#f8d7da,stroke:#dc3545,stroke-dasharray: 5 5
+    class data,clean done
+    class pipe,model,user,api,state planned
 ```
 
-TODO: krótki opis diagramu (3–5 zdań).
+Diagram przedstawia przepływ danych od surowego zbioru z UCI, kontrolowanego przez kontrakt, przez etapy czyszczenia i pipeline uczący, aż do gotowego artefaktu modelu. W warstwie docelowej usługa API wczytuje model, by obsługiwać żądania predykcji wysyłane przez analityka za pomocą interfejsu UI. Następnie API zwraca decyzję o zakupie i zapisuje historię operacji w bazie danych. Na zielono oznaczono elementy zrealizowane w Sprincie 1, a czerwoną przerywaną linią komponenty planowane na kolejne etapy.
 <!-- DIAGRAM-V0:END -->
 
 ## Historia zmian architektury
