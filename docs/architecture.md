@@ -59,8 +59,8 @@ flowchart LR
 
     classDef done fill:#d4edda,stroke:#28a745
     classDef planned fill:#f8d7da,stroke:#dc3545,stroke-dasharray: 5 5
-    class data,clean done
-    class pipe,model,user,api,state planned
+    class data,clean,pipe done
+    class model,user,api,state planned
 ```
 
 Diagram przedstawia przepływ danych od surowego zbioru z UCI, kontrolowanego przez kontrakt, przez etapy czyszczenia i pipeline uczący, aż do gotowego artefaktu modelu. W warstwie docelowej usługa API wczytuje model, by obsługiwać żądania predykcji wysyłane przez analityka za pomocą interfejsu UI. Następnie API zwraca decyzję o zakupie i zapisuje historię operacji w bazie danych. Na zielono oznaczono elementy zrealizowane w Sprincie 1, a czerwoną przerywaną linią komponenty planowane na kolejne etapy.
@@ -71,3 +71,4 @@ Diagram przedstawia przepływ danych od surowego zbioru z UCI, kontrolowanego pr
 | Sprint | Zmiana | Powiązany ADR |
 |---|---|---|
 | S1 | diagram v0 | — |
+ |S2 |            |   |
