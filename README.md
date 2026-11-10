@@ -88,6 +88,60 @@ Najważniejsze pliki Sprintu 1:
 | `docs/architecture.md` | zespół | diagram v0 systemu docelowego |
 | `src/asi_project/datasets.yaml` | prowadząca | kontrakt datasetów — nie edytujemy |
 
+## Kedro quickstart
+
+Pipeline Sprintu 2 prowadzi od surowych danych do wytrenowanego modelu i metryk.
+
+**1. Środowisko:** conda `asi-ml` + przypięty Kedro.
+`pyarrow` jest w `environment.yml`. Jeśli środowisko `asi-ml`
+było tworzone przed tą zmianą, trzeba je jednorazowo zaktualizować:
+
+```bash
+conda env update -n asi-ml -f environment.yml --prune
+```
+
+Następnie:
+
+```bash
+conda activate asi-ml
+python -m pip install --no-deps -e .
+python -m pip install -r requirements/preflight-s2.txt -c constraints.txt
+kedro registry list   # powinno pokazać: __default__, data_processing, data_science
+```
+
+Instalacja `pyarrow` przez pip psuje import gdyż miesza się z werjsą condy.
+
+**2. Dane:** pełny zbiór `online_shoppers` (UCI, CC BY 4.0) pobiera skrypt:
+
+```bash
+python scripts/download_data.py
+```
+
+Plik trafia do `data/01_raw/online_shoppers/online_shoppers_intention.csv` (poza gitem).
+
+**3. Uruchomienie:**
+
+```bash
+kedro run                               # pełny pipeline na pełnych danych
+kedro run --pipeline data_processing    # walidacja, input normalization, training-only filtering
+kedro run --pipeline data_science       # split, trening i ewaluacja
+kedro run --env ci                      # na próbce CI data/01_raw/sample.csv
+```
+
+`data_science` czyta `model_input_table`, więc wymaga wcześniejszego przebiegu `data_processing`.
+
+**4. Wyniki** (katalog `data/` jest poza gitem):
+
+| Artefakt | Ścieżka |
+|---|---|
+| tabela wejściowa modelu | `data/02_intermediate/model_input_table.parquet` |
+| wytrenowany model | `data/06_models/trained_model.pkl` |
+| metryki | `data/08_reporting/metrics.json` |
+
+- Parametry pipeline'u: `conf/base/parameters.yml`.
+- Data Catalog: `conf/base/catalog.yml` (nadpisania dla CI: `conf/ci/catalog.yml`).
+- Testy nodów: `pytest tests/pipelines`.
+
 ## Gałęzie, Pull Requesty i review
 
 - Gałąź `main` jest chroniona. Każda zmiana trafia przez gałąź i Pull Request.
