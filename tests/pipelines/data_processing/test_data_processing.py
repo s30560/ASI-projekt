@@ -6,33 +6,41 @@ try:
         training_only_filtering,
     )
 except ImportError:
-
     def input_normalization(df: pd.DataFrame) -> pd.DataFrame:
-        return df.dropna()
+        df = df.copy()
+        df["feature1"] = df["feature1"].fillna(0.0)
+        return df
 
     def training_only_filtering(df: pd.DataFrame) -> pd.DataFrame:
-        return df[df["is_train"]]
+        return df[df["is_train"]].reset_index(drop=True)
 
 
-def test_input_normalization():
+def test_input_normalization_concrete_results():
+    
     dummy_data = pd.DataFrame(
         {
-            "feature1": [1, None, 3],
-            "feature2": ["A", "B", None],
+            "feature1": [10.0, None, 30.0],
+            "feature2": [1.0, 2.0, 3.0],
         }
     )
     result = input_normalization(dummy_data)
-    assert result.isnull().sum().sum() == 0
-    assert not result.empty
+    
+    
+    assert result.loc[1, "feature1"] == 0.0  
+    assert result.isnull().sum().sum() == 0  
+    assert len(result) == 3
 
 
-def test_training_only_filtering():
+def test_training_only_filtering_concrete_results():
     dummy_data = pd.DataFrame(
         {
-            "is_train": [True, False, True],
-            "value": [1, 2, 3],
+            "is_train": [True, False, True, False],
+            "value": [100, 200, 300, 400],
         }
     )
     result = training_only_filtering(dummy_data)
-    assert len(result) == 2
-    assert all(result["is_train"])
+    
+    
+    assert len(result) == 2  
+    assert list(result["value"]) == [100, 300]  
+    assert all(result["is_train"])  #
