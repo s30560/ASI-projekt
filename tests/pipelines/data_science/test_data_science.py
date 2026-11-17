@@ -40,7 +40,6 @@ def test_split_data():
 
 
 def test_training_and_evaluation():
-    # Przygotowanie małych danych do symulacji treningu
     X_train = pd.DataFrame({
         "feature1": [1, 2, 3, 4, 5, 6, 7, 8],
         "feature2": [10, 20, 10, 20, 10, 20, 10, 20]
