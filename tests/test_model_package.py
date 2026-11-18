@@ -52,15 +52,11 @@ def test_wandb_artifact_logging_with_production_alias(tmp_path: Path, monkeypatc
     mock_wandb.Artifact.return_value = mock_artifact
 
     with patch.dict("sys.modules", {"wandb": mock_wandb}):
-        log_model_package_to_wandb(
-            pkg_dir, artifact_name="model-package", aliases=["production"]
-        )
+        log_model_package_to_wandb(pkg_dir, artifact_name="model-package", aliases=["production"])
 
         mock_wandb.Artifact.assert_called_once_with(name="model-package", type="model")
         mock_artifact.add_dir.assert_called_once_with(str(pkg_dir))
-        mock_wandb.run.log_artifact.assert_called_once_with(
-            mock_artifact, aliases=["production"]
-        )
+        mock_wandb.run.log_artifact.assert_called_once_with(mock_artifact, aliases=["production"])
 
 
 def test_smoke_test_production_package(tmp_path: Path, monkeypatch):
