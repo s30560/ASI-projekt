@@ -14,3 +14,7 @@ trained_model:
 metrics:
   type: json.JSONDataset
   filepath: data/08_reporting/metrics.json
+
+autogluon_metrics:
+  type: json.JSONDataset
+  filepath: data/08_reporting/autogluon_metrics.json

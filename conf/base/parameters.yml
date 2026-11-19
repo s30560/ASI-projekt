@@ -22,3 +22,28 @@ categorical_features:
   - TrafficType
   - VisitorType
   - Weekend
+raw_data_path: data/01_raw/online_shoppers/online_shoppers_intention.csv
+
+wandb:
+  project: asi-projekt
+  entity: projekt-asi
+  group: sprint3
+  mode: online
+
+autogluon:
+  enabled: true
+  eval_metric: f1
+  output_dir: data/06_models/autogluon
+  verbosity: 1
+  experiments:
+
+    - name: ag_gbm_cat_medium
+      presets: medium_quality
+      time_limit: 120
+      hyperparameters:
+        GBM: {}
+        CAT: {}
+
+    - name: ag_good_quality
+      presets: good_quality
+      time_limit: 300
