@@ -47,3 +47,8 @@ autogluon:
     - name: ag_good_quality
       presets: good_quality
       time_limit: 300
+
+
+comparison:
+  baseline_package_dir: data/06_models/baseline_package
+  memory_sample_rows: 5

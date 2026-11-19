@@ -1,6 +1,7 @@
 from kedro.pipeline import Pipeline, node, pipeline
 
 from .nodes import (
+    build_model_comparison,
     compute_data_fingerprint,
     evaluate_model,
     log_baseline_run,
@@ -51,6 +52,7 @@ def create_pipeline(**kwargs) -> Pipeline:
                     "params:split_params",
                     "data_fingerprint",
                     "params:wandb",
+                    "params:comparison",
                 ],
                 outputs="baseline_run",
                 name="log_baseline_run_node",
@@ -67,9 +69,22 @@ def create_pipeline(**kwargs) -> Pipeline:
                     "data_fingerprint",
                     "params:wandb",
                     "baseline_run",
+                    "params:comparison",
                 ],
                 outputs="autogluon_metrics",
                 name="train_autogluon_node",
+            ),
+            node(
+                func=build_model_comparison,
+                inputs=[
+                    "baseline_run",
+                    "autogluon_metrics",
+                    "params:split_params",
+                    "data_fingerprint",
+                    "params:wandb",
+                ],
+                outputs=["model_comparison", "model_comparison_md"],
+                name="build_model_comparison_node",
             ),
         ]
     )
