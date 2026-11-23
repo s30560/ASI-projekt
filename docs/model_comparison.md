@@ -50,8 +50,8 @@ tylko LightGBM + CatBoost, najlepszy model wewnętrzny: `WeightedEnsemble_L2`).
   (`random_state=42`) - bez CV nie wiemy, czy jest stabilna. Jeżeli w kolejnych runach
   przewaga zniknie, wracamy do baseline jako tańszego modelu (aktualizacja ADR-2).
 - Model AutoGluona to katalog (`TabularPredictor`), a nie pojedynczy estymator sklearn.
-  Pakiet w kroku 6 musi zawierać wersję po `clone_for_deployment` i wczytywać ją przez
-  `TabularPredictor.load`, a nie przez `joblib` jak obecnie w `model_package.py`.
+  Pakiet zawiera więc wersję po `clone_for_deployment` w katalogu `model/`, wczytywaną przez
+  `TabularPredictor.load` w `load_model_package`.
 - Pakiet produkcyjny wymaga `autogluon.tabular` w obrazie API - większy obraz Dockera
   niż przy baseline (do uwzględnienia w ADR-3, Sprint 4).
 

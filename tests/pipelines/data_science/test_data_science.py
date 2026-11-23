@@ -32,3 +32,17 @@ def test_split_data(mock_project):
 
     assert len(X_train) == 80
     assert len(X_test) == 20
+
+
+def test_package_production_model_skips_without_autogluon_results():
+    """In CI AutoGluon is disabled, so there is nothing to package."""
+    from asi_project.pipelines.data_science.nodes import package_production_model
+
+    result = package_production_model(
+        autogluon_metrics={},
+        split_params={"test_size": 0.2, "random_state": 42},
+        data_fingerprint={"raw_sha256": "x"},
+        production_params={"model": "ag_gbm_cat_medium", "package_dir": "unused"},
+        wandb_params={"mode": "disabled"},
+    )
+    assert result == {}

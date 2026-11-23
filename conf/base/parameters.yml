@@ -51,3 +51,10 @@ autogluon:
 comparison:
   baseline_package_dir: data/06_models/baseline_package
   memory_sample_rows: 5
+
+production:
+  model: ag_gbm_cat_medium
+  package_dir: data/06_models/package
+  artifact_name: model-package
+  aliases: [production]
+  publish: false
