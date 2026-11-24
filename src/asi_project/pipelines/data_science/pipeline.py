@@ -5,6 +5,7 @@ from .nodes import (
     compute_data_fingerprint,
     evaluate_model,
     log_baseline_run,
+    package_production_model,
     split_data,
     train_autogluon_experiments,
     train_model,
@@ -85,6 +86,18 @@ def create_pipeline(**kwargs) -> Pipeline:
                 ],
                 outputs=["model_comparison", "model_comparison_md"],
                 name="build_model_comparison_node",
+            ),
+            node(
+                func=package_production_model,
+                inputs=[
+                    "autogluon_metrics",
+                    "params:split_params",
+                    "data_fingerprint",
+                    "params:production",
+                    "params:wandb",
+                ],
+                outputs="production_package",
+                name="package_production_model_node",
             ),
         ]
     )

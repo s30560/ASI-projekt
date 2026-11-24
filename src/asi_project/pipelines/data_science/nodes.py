@@ -10,7 +10,7 @@ from asi_project.config import DatasetContract, ProjectConfig, get_contract, loa
 from asi_project.data import make_xy, split_train_test
 from asi_project.metrics import compute_metrics
 from asi_project.model import build_baseline_pipeline
-from asi_project.model_package import save_model_package
+from asi_project.model_package import log_model_package_to_wandb, save_model_package
 from asi_project.tracking import (
     dir_size_mb,
     flatten_metrics,
@@ -233,6 +233,66 @@ def train_autogluon_experiments(
             summary["artifact_size_full_mb"],
         )
     return results
+
+
+METRIC_KEYS = ("accuracy", "precision", "recall", "f1")
+
+
+def package_production_model(
+    autogluon_metrics: dict,
+    split_params: dict,
+    data_fingerprint: dict,
+    production_params: dict,
+    wandb_params: dict,
+) -> dict:
+    name = production_params["model"]
+    experiment = (autogluon_metrics or {}).get(name)
+    if experiment is None:
+        logger.warning(
+            "Brak wyników eksperymentu %r (AutoGluon wyłączony?): pomijam pakiet produkcyjny.",
+            name,
+        )
+        return {}
+
+    from autogluon.tabular import TabularPredictor
+
+    config, contract = _project()
+    predictor = TabularPredictor.load(experiment["deploy_dir"], verbosity=0)
+    package_dir = Path(config.root) / production_params["package_dir"]
+    save_model_package(
+        predictor,
+        package_dir,
+        feature_names=list(config.model_features),
+        target_name=contract.target,
+        positive_class=contract.positive_class,
+        metrics={k: experiment[k] for k in METRIC_KEYS},
+        data_fingerprint=data_fingerprint["raw_sha256"],
+        extra_metadata={
+            "model_name": name,
+            "best_model": experiment["best_model"],
+            "prediction_labels": {"1": f"{contract.target}={contract.positive_class}", "0": "inne"},
+            "confusion_matrix": experiment["confusion_matrix"],
+            "dataset": contract.dataset_id,
+            "split": split_params,
+            "training_run_id": experiment["run_id"],
+        },
+    )
+    logger.info("Pakiet produkcyjny %s zapisany w %s", name, package_dir)
+
+    if production_params.get("publish", False):
+        with init_wandb_run(
+            wandb_params,
+            name="model-package",
+            job_type="package",
+            config=_base_run_config(data_fingerprint, split_params),
+            tags=["package", "sprint3"],
+        ):
+            log_model_package_to_wandb(
+                package_dir,
+                artifact_name=production_params["artifact_name"],
+                aliases=list(production_params["aliases"]),
+            )
+    return {"model": name, "package_dir": str(package_dir)}
 
 
 COMPARISON_COLUMNS = {

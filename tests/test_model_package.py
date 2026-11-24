@@ -2,6 +2,7 @@ from pathlib import Path
 from unittest.mock import MagicMock, patch
 
 import pandas as pd
+import pytest
 from sklearn.linear_model import LogisticRegression
 
 from asi_project.model_package import (
@@ -101,3 +102,53 @@ def test_smoke_test_production_package_ci(tmp_path: Path, monkeypatch):
     assert list(predictions_df.columns) == ["prediction"]
     assert predictions_df["prediction"].isnull().sum() == 0
     assert set(predictions_df["prediction"]).issubset({0, 1})
+
+
+class TabularPredictor:
+    def __init__(self, path: Path):
+        self.path = str(path)
+
+    def predict(self, df: pd.DataFrame) -> pd.Series:
+        return pd.Series([1] * len(df), index=df.index + 100)
+
+    @classmethod
+    def load(cls, path: str, verbosity: int = 0) -> "TabularPredictor":
+        return cls(Path(path))
+
+
+def test_autogluon_package_saved_as_directory_and_loaded(tmp_path: Path):
+    predictor_dir = tmp_path / "ag_deploy"
+    predictor_dir.mkdir()
+    (predictor_dir / "predictor.pkl").write_bytes(b"stub")
+
+    pkg_dir = tmp_path / "package"
+    save_model_package(
+        TabularPredictor(predictor_dir),
+        pkg_dir,
+        feature_names=["f1", "f2"],
+        target_name="Revenue",
+        positive_class="true",
+    )
+    assert (pkg_dir / "model" / "predictor.pkl").exists()
+    assert not (pkg_dir / "model.pkl").exists()
+
+    fake_module = MagicMock(TabularPredictor=TabularPredictor)
+    with patch.dict("sys.modules", {"autogluon.tabular": fake_module}):
+        model, metadata = load_model_package(pkg_dir)
+        predictions = predict_with_package(
+            pkg_dir, pd.DataFrame({"f1": [1.0, 2.0], "f2": [3.0, 4.0]})
+        )
+
+    assert isinstance(model, TabularPredictor)
+    assert metadata["model_format"] == "autogluon"
+    assert metadata["model_class"] == "TabularPredictor"
+    assert list(predictions.index) == [0, 1]
+    assert predictions["prediction"].tolist() == [1, 1]
+
+
+def test_incomplete_autogluon_package_raises(tmp_path: Path):
+    pkg_dir = tmp_path / "package"
+    pkg_dir.mkdir()
+    (pkg_dir / "metadata.json").write_text('{"model_format": "autogluon"}', encoding="utf-8")
+    with pytest.raises(FileNotFoundError):
+        load_model_package(pkg_dir)
